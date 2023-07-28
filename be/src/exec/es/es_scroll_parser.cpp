@@ -42,6 +42,7 @@ static const char* FIELD_HITS = "hits";
 static const char* FIELD_INNER_HITS = "hits";
 static const char* FIELD_SOURCE = "_source";
 static const char* FIELD_ID = "_id";
+static const char* FIELD_SCORE = "_score";
 
 // get the original json data type
 std::string json_type_to_string(rapidjson::Type type) {
@@ -401,6 +402,14 @@ Status ScrollParser::fill_columns(const TupleDescriptor* tuple_desc,
             size_t len = _id.length();
 
             col_ptr->insert_data(const_cast<const char*>(_id.data()), len);
+            continue;
+        }
+
+        if (slot_desc->col_name() == FIELD_SCORE) {
+            const rapidjson::Value& col = obj[FIELD_SCORE];
+            PrimitiveType type = slot_desc->type().type;
+            insert_float_value<double>(col, type, col_ptr, pure_doc_value,
+                                       slot_desc->is_nullable());        
             continue;
         }
 
