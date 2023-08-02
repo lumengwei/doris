@@ -126,9 +126,8 @@ under the License.
             <plugin>
                 <groupId>org.apache.thrift.tools</groupId>
                 <artifactId>maven-thrift-plugin</artifactId>
-                <version>0.1.11</version>
                 <configuration>
-                    <thriftExecutable>${doris.thirdparty}/installed/bin/thrift</thriftExecutable>
+                    <!--                    <thriftExecutable>${doris.thirdparty}/installed/bin/thrift</thriftExecutable>-->
                     <thriftSourceRoot>${doris.home}/gensrc/thrift</thriftSourceRoot>
                     <generator>java:fullcamel</generator>
                 </configuration>
