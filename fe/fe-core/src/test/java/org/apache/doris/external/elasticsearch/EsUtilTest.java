@@ -116,35 +116,35 @@ public class EsUtilTest extends EsTestCase {
         EsTable esTableAfter7X = fakeEsTable("fake", "test", "_doc", columns);
         SearchContext searchContext = new SearchContext(esTableAfter7X);
         MappingPhase.resolveFields(searchContext,
-                loadJsonFromFile("data/es/test_index_mapping_field_mult_analyzer.json"));
+            loadJsonFromFile("data/es/test_index_mapping_field_mult_analyzer.json"));
         Assertions.assertFalse(searchContext.docValueFieldsContext().containsKey("k3"));
     }
 
     @Test
     public void testEs6Mapping() throws IOException, URISyntaxException {
         ObjectNode testAliases = EsUtil.getMappingProps("test", loadJsonFromFile("data/es/es6_aliases_mapping.json"),
-                "doc");
+            "doc");
         Assertions.assertEquals(
-                "{\"test1\":{\"type\":\"keyword\"},\"test2\":{\"type\":\"text\",\"fields\":{\"keyword\":{\"type\":\"keyword\",\"ignore_above\":256}}},\"test3\":{\"type\":\"double\"},\"test4\":{\"type\":\"date\"}}",
-                testAliases.toString());
+            "{\"test1\":{\"type\":\"keyword\"},\"test2\":{\"type\":\"text\",\"fields\":{\"keyword\":{\"type\":\"keyword\",\"ignore_above\":256}}},\"test3\":{\"type\":\"double\"},\"test4\":{\"type\":\"date\"}}",
+            testAliases.toString());
 
         ObjectNode testAliasesNoType = EsUtil.getMappingProps("test",
-                loadJsonFromFile("data/es/es6_aliases_mapping.json"), null);
+            loadJsonFromFile("data/es/es6_aliases_mapping.json"), null);
         Assertions.assertEquals(
-                "{\"test1\":{\"type\":\"keyword\"},\"test2\":{\"type\":\"text\",\"fields\":{\"keyword\":{\"type\":\"keyword\",\"ignore_above\":256}}},\"test3\":{\"type\":\"double\"},\"test4\":{\"type\":\"date\"}}",
-                testAliasesNoType.toString());
+            "{\"test1\":{\"type\":\"keyword\"},\"test2\":{\"type\":\"text\",\"fields\":{\"keyword\":{\"type\":\"keyword\",\"ignore_above\":256}}},\"test3\":{\"type\":\"double\"},\"test4\":{\"type\":\"date\"}}",
+            testAliasesNoType.toString());
 
         ObjectNode testIndex = EsUtil.getMappingProps("test", loadJsonFromFile("data/es/es6_index_mapping.json"),
-                "doc");
+            "doc");
         Assertions.assertEquals(
-                "{\"test1\":{\"type\":\"keyword\"},\"test2\":{\"type\":\"text\",\"fields\":{\"keyword\":{\"type\":\"keyword\",\"ignore_above\":256}}},\"test3\":{\"type\":\"double\"},\"test4\":{\"type\":\"date\"}}",
-                testIndex.toString());
+            "{\"test1\":{\"type\":\"keyword\"},\"test2\":{\"type\":\"text\",\"fields\":{\"keyword\":{\"type\":\"keyword\",\"ignore_above\":256}}},\"test3\":{\"type\":\"double\"},\"test4\":{\"type\":\"date\"}}",
+            testIndex.toString());
 
         ObjectNode testDynamicTemplates = EsUtil.getMappingProps("test",
-                loadJsonFromFile("data/es/es6_dynamic_templates_mapping.json"), "doc");
+            loadJsonFromFile("data/es/es6_dynamic_templates_mapping.json"), "doc");
         Assertions.assertEquals(
-                "{\"test1\":{\"type\":\"keyword\"},\"test2\":{\"type\":\"text\",\"fields\":{\"keyword\":{\"type\":\"keyword\",\"ignore_above\":256}}},\"test3\":{\"type\":\"double\"},\"test4\":{\"type\":\"date\"}}",
-                testDynamicTemplates.toString());
+            "{\"test1\":{\"type\":\"keyword\"},\"test2\":{\"type\":\"text\",\"fields\":{\"keyword\":{\"type\":\"keyword\",\"ignore_above\":256}}},\"test3\":{\"type\":\"double\"},\"test4\":{\"type\":\"date\"}}",
+            testDynamicTemplates.toString());
 
         expectedEx.expect(DorisEsException.class);
         expectedEx.expectMessage("Do not support index without explicit mapping.");
@@ -158,28 +158,28 @@ public class EsUtilTest extends EsTestCase {
     @Test
     public void testEs7Mapping() throws IOException, URISyntaxException {
         ObjectNode testAliases = EsUtil.getMappingProps("test", loadJsonFromFile("data/es/es7_aliases_mapping.json"),
-                null);
+            null);
         Assertions.assertEquals(
-                "{\"test1\":{\"type\":\"keyword\"},\"test2\":{\"type\":\"text\",\"fields\":{\"keyword\":{\"type\":\"keyword\",\"ignore_above\":256}}},\"test3\":{\"type\":\"double\"},\"test4\":{\"type\":\"date\"}}",
-                testAliases.toString());
+            "{\"test1\":{\"type\":\"keyword\"},\"test2\":{\"type\":\"text\",\"fields\":{\"keyword\":{\"type\":\"keyword\",\"ignore_above\":256}}},\"test3\":{\"type\":\"double\"},\"test4\":{\"type\":\"date\"}}",
+            testAliases.toString());
 
         ObjectNode testAliasesErrorType = EsUtil.getMappingProps("test",
-                loadJsonFromFile("data/es/es7_aliases_mapping.json"), "doc");
+            loadJsonFromFile("data/es/es7_aliases_mapping.json"), "doc");
         Assertions.assertEquals(
-                "{\"test1\":{\"type\":\"keyword\"},\"test2\":{\"type\":\"text\",\"fields\":{\"keyword\":{\"type\":\"keyword\",\"ignore_above\":256}}},\"test3\":{\"type\":\"double\"},\"test4\":{\"type\":\"date\"}}",
-                testAliasesErrorType.toString());
+            "{\"test1\":{\"type\":\"keyword\"},\"test2\":{\"type\":\"text\",\"fields\":{\"keyword\":{\"type\":\"keyword\",\"ignore_above\":256}}},\"test3\":{\"type\":\"double\"},\"test4\":{\"type\":\"date\"}}",
+            testAliasesErrorType.toString());
 
         ObjectNode testIndex = EsUtil.getMappingProps("test", loadJsonFromFile("data/es/es7_index_mapping.json"),
-                "doc");
+            "doc");
         Assertions.assertEquals(
-                "{\"test1\":{\"type\":\"keyword\"},\"test2\":{\"type\":\"text\",\"fields\":{\"keyword\":{\"type\":\"keyword\",\"ignore_above\":256}}},\"test3\":{\"type\":\"double\"},\"test4\":{\"type\":\"date\"}}",
-                testIndex.toString());
+            "{\"test1\":{\"type\":\"keyword\"},\"test2\":{\"type\":\"text\",\"fields\":{\"keyword\":{\"type\":\"keyword\",\"ignore_above\":256}}},\"test3\":{\"type\":\"double\"},\"test4\":{\"type\":\"date\"}}",
+            testIndex.toString());
 
         ObjectNode testDynamicTemplates = EsUtil.getMappingProps("test",
-                loadJsonFromFile("data/es/es7_dynamic_templates_mapping.json"), null);
+            loadJsonFromFile("data/es/es7_dynamic_templates_mapping.json"), null);
         Assertions.assertEquals(
-                "{\"test1\":{\"type\":\"keyword\"},\"test2\":{\"type\":\"text\",\"fields\":{\"keyword\":{\"type\":\"keyword\",\"ignore_above\":256}}},\"test3\":{\"type\":\"double\"},\"test4\":{\"type\":\"date\"}}",
-                testDynamicTemplates.toString());
+            "{\"test1\":{\"type\":\"keyword\"},\"test2\":{\"type\":\"text\",\"fields\":{\"keyword\":{\"type\":\"keyword\",\"ignore_above\":256}}},\"test3\":{\"type\":\"double\"},\"test4\":{\"type\":\"date\"}}",
+            testDynamicTemplates.toString());
 
         expectedEx.expect(DorisEsException.class);
         expectedEx.expectMessage("Do not support index without explicit mapping.");
@@ -189,28 +189,28 @@ public class EsUtilTest extends EsTestCase {
     @Test
     public void testEs8Mapping() throws IOException, URISyntaxException {
         ObjectNode testAliases = EsUtil.getMappingProps("test", loadJsonFromFile("data/es/es8_aliases_mapping.json"),
-                null);
+            null);
         Assertions.assertEquals(
-                "{\"test1\":{\"type\":\"keyword\"},\"test2\":{\"type\":\"text\",\"fields\":{\"keyword\":{\"type\":\"keyword\",\"ignore_above\":256}}},\"test3\":{\"type\":\"double\"},\"test4\":{\"type\":\"date\"}}",
-                testAliases.toString());
+            "{\"test1\":{\"type\":\"keyword\"},\"test2\":{\"type\":\"text\",\"fields\":{\"keyword\":{\"type\":\"keyword\",\"ignore_above\":256}}},\"test3\":{\"type\":\"double\"},\"test4\":{\"type\":\"date\"}}",
+            testAliases.toString());
 
         ObjectNode testAliasesErrorType = EsUtil.getMappingProps("test",
-                loadJsonFromFile("data/es/es8_aliases_mapping.json"), "doc");
+            loadJsonFromFile("data/es/es8_aliases_mapping.json"), "doc");
         Assertions.assertEquals(
-                "{\"test1\":{\"type\":\"keyword\"},\"test2\":{\"type\":\"text\",\"fields\":{\"keyword\":{\"type\":\"keyword\",\"ignore_above\":256}}},\"test3\":{\"type\":\"double\"},\"test4\":{\"type\":\"date\"}}",
-                testAliasesErrorType.toString());
+            "{\"test1\":{\"type\":\"keyword\"},\"test2\":{\"type\":\"text\",\"fields\":{\"keyword\":{\"type\":\"keyword\",\"ignore_above\":256}}},\"test3\":{\"type\":\"double\"},\"test4\":{\"type\":\"date\"}}",
+            testAliasesErrorType.toString());
 
         ObjectNode testIndex = EsUtil.getMappingProps("test", loadJsonFromFile("data/es/es8_index_mapping.json"),
-                "doc");
+            "doc");
         Assertions.assertEquals(
-                "{\"test1\":{\"type\":\"keyword\"},\"test2\":{\"type\":\"text\",\"fields\":{\"keyword\":{\"type\":\"keyword\",\"ignore_above\":256}}},\"test3\":{\"type\":\"double\"},\"test4\":{\"type\":\"date\"}}",
-                testIndex.toString());
+            "{\"test1\":{\"type\":\"keyword\"},\"test2\":{\"type\":\"text\",\"fields\":{\"keyword\":{\"type\":\"keyword\",\"ignore_above\":256}}},\"test3\":{\"type\":\"double\"},\"test4\":{\"type\":\"date\"}}",
+            testIndex.toString());
 
         ObjectNode testDynamicTemplates = EsUtil.getMappingProps("test",
-                loadJsonFromFile("data/es/es8_dynamic_templates_mapping.json"), "doc");
+            loadJsonFromFile("data/es/es8_dynamic_templates_mapping.json"), "doc");
         Assertions.assertEquals(
-                "{\"test1\":{\"type\":\"keyword\"},\"test2\":{\"type\":\"text\",\"fields\":{\"keyword\":{\"type\":\"keyword\",\"ignore_above\":256}}},\"test3\":{\"type\":\"double\"},\"test4\":{\"type\":\"date\"}}",
-                testDynamicTemplates.toString());
+            "{\"test1\":{\"type\":\"keyword\"},\"test2\":{\"type\":\"text\",\"fields\":{\"keyword\":{\"type\":\"keyword\",\"ignore_above\":256}}},\"test3\":{\"type\":\"double\"},\"test4\":{\"type\":\"date\"}}",
+            testDynamicTemplates.toString());
 
         expectedEx.expect(DorisEsException.class);
         expectedEx.expectMessage("Do not support index without explicit mapping.");
@@ -218,9 +218,17 @@ public class EsUtilTest extends EsTestCase {
     }
 
     @Test
+    public void testMapping() throws IOException, URISyntaxException {
+        ObjectNode testDateFormat = EsUtil.getRootSchema(
+            EsUtil.getMapping(loadJsonFromFile("data/es/test_mapping.json")), null, new ArrayList<>());
+        List<Column> parseColumns = EsUtil.genColumnsFromEs("patent_ep_release_v4_new", null, testDateFormat, false, new ArrayList<>());
+        Assertions.assertTrue(parseColumns.size() > 0);
+    }
+
+    @Test
     public void testDateType() throws IOException, URISyntaxException {
         ObjectNode testDateFormat = EsUtil.getRootSchema(
-                EsUtil.getMapping(loadJsonFromFile("data/es/test_date_format.json")), null, new ArrayList<>());
+            EsUtil.getMapping(loadJsonFromFile("data/es/test_date_format.json")), null, new ArrayList<>());
         List<Column> parseColumns = EsUtil.genColumnsFromEs("test_date_format", null, testDateFormat, false, new ArrayList<>());
         Assertions.assertEquals(8, parseColumns.size());
         for (Column column : parseColumns) {
@@ -254,9 +262,9 @@ public class EsUtilTest extends EsTestCase {
     public void testDynamicMapping() throws IOException, URISyntaxException {
 
         ObjectNode testAliases = EsUtil.getMappingProps("test", loadJsonFromFile("data/es/dynamic_mappings.json"),
-                null);
+            null);
         Assertions.assertEquals("{\"time\":{\"type\":\"long\"},\"type\":{\"type\":\"keyword\"},\"userId\":{\"type\":\"text\",\"fields\":{\"keyword\":{\"type\":\"keyword\"}}}}",
-                testAliases.toString());
+            testAliases.toString());
 
     }
 

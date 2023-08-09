@@ -1,0 +1,1598 @@
+{
+  "patent_ep_release_v4_new": {
+    "mappings": {
+      "dynamic": "strict",
+      "runtime": {
+        "legal_tuning_rt": {
+          "type": "double",
+          "script": {
+            "source": "\n      if(doc['simple_legal_status_2'].empty) {emit(0);return;}\n      String legalStatus = doc['simple_legal_status_2'].value;\n      if (legalStatus == '公开') {\n        emit(0.05);\n      } else if (legalStatus == '实审') {\n        emit(0.05);\n      } else if (legalStatus == '授权') {\n        emit(0.05);\n      } else if (legalStatus == '权利恢复') {\n        emit(0.04);\n      } else if (legalStatus == '部分无效') {\n        emit(0.04);\n      } else if (legalStatus == '届满') {\n        emit(0.04);\n      } else if (legalStatus == '终止') {\n        emit(0.02);\n      } else if (legalStatus == '放弃') {\n        emit(0.02);\n      } else if (legalStatus == '全部无效') {\n        emit(0.01);\n      } else if (legalStatus == '驳回') {\n        emit(0.01);\n      }else if (legalStatus == '撤回') {\n        emit(0.01);\n      }else if (legalStatus == '其他') {\n        emit(0);\n      }\n      ",
+            "lang": "painless"
+          }
+        },
+        "pattype_tuning_rt": {
+          "type": "double",
+          "script": {
+            "source": "\n      if(doc['pat_type'].empty) {emit(0);return;}\n      String patType = doc['pat_type'].value;\n      if (patType == '1') {\n        emit(0.1);\n      } else {\n        emit(0);\n      }\n      ",
+            "lang": "painless"
+          }
+        }
+      },
+      "properties": {
+        "abs": {
+          "type": "text",
+          "index": false,
+          "store": true,
+          "fields": {
+            "single2": {
+              "type": "text",
+              "index_options": "freqs",
+              "analyzer": "single2_text"
+            },
+            "single3": {
+              "type": "text",
+              "index_options": "freqs",
+              "analyzer": "single3_text"
+            },
+            "unigram": {
+              "type": "text",
+              "index_options": "freqs",
+              "analyzer": "unigram_text"
+            }
+          },
+          "analyzer": "xml_text_analyzer"
+        },
+        "abs_img": {
+          "type": "keyword",
+          "index": false,
+          "doc_values": false,
+          "store": true
+        },
+        "agency_code_array": {
+          "type": "text",
+          "index": false,
+          "store": true,
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 2048,
+              "normalizer": "my_normalizer"
+            }
+          }
+        },
+        "agency_name_array": {
+          "type": "text",
+          "store": true,
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 2048,
+              "normalizer": "my_normalizer"
+            },
+            "normal": {
+              "type": "keyword",
+              "doc_values": false,
+              "normalizer": "default_normalizer"
+            },
+            "single2": {
+              "type": "text",
+              "index_options": "docs",
+              "analyzer": "single2_company_and_hum"
+            },
+            "single3": {
+              "type": "text",
+              "index_options": "docs",
+              "analyzer": "single3_company_and_hum"
+            },
+            "unigram": {
+              "type": "text",
+              "index_options": "docs",
+              "analyzer": "unigram_company_and_hum"
+            }
+          }
+        },
+        "agent_name_array": {
+          "type": "text",
+          "store": true,
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 2048,
+              "normalizer": "my_normalizer"
+            },
+            "normal": {
+              "type": "keyword",
+              "doc_values": false,
+              "normalizer": "default_normalizer"
+            },
+            "single2": {
+              "type": "text",
+              "index_options": "docs",
+              "analyzer": "single2_company_and_hum"
+            },
+            "single3": {
+              "type": "text",
+              "index_options": "docs",
+              "analyzer": "single3_company_and_hum"
+            },
+            "unigram": {
+              "type": "text",
+              "index_options": "docs",
+              "analyzer": "unigram_company_and_hum"
+            }
+          }
+        },
+        "app_date": {
+          "type": "date",
+          "store": true,
+          "format": "yyyy-MM-dd"
+        },
+        "app_number": {
+          "type": "keyword",
+          "index": false,
+          "store": true,
+          "fields": {
+            "hash": {
+              "type": "murmur3"
+            },
+            "infix": {
+              "type": "text",
+              "index_options": "docs",
+              "analyzer": "infix_6"
+            },
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
+            "murmur3": {
+              "type": "murmur3",
+              "store": true
+            },
+            "normal": {
+              "type": "keyword",
+              "doc_values": false,
+              "normalizer": "default_normalizer"
+            }
+          }
+        },
+        "app_number_bucket": {
+          "type": "keyword",
+          "index": false,
+          "script": {
+            "source": "\n        String ap = doc['app_number'].value;\n        int hash = ap.hashCode();\n        int AppNumberBuckets = 256 / 2;\n        int rest = hash % AppNumberBuckets + AppNumberBuckets;\n        emit(rest + '');\n        ",
+            "lang": "painless"
+          }
+        },
+        "app_number_hash": {
+          "type": "long",
+          "index": false,
+          "script": {
+            "source": "emit(doc['app_number'].value.hashCode())",
+            "lang": "painless"
+          }
+        },
+        "app_number_no_prefix": {
+          "type": "keyword",
+          "doc_values": false,
+          "ignore_above": 256
+        },
+        "app_number_reversed": {
+          "type": "keyword",
+          "doc_values": false,
+          "ignore_above": 256
+        },
+        "app_year": {
+          "type": "keyword",
+          "store": true
+        },
+        "applicant_address": {
+          "type": "text",
+          "store": true,
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "doc_values": false,
+              "ignore_above": 256
+            },
+            "normal": {
+              "type": "keyword",
+              "doc_values": false,
+              "normalizer": "default_normalizer"
+            },
+            "single2": {
+              "type": "text",
+              "index_options": "docs",
+              "analyzer": "single2_address"
+            },
+            "single3": {
+              "type": "text",
+              "index_options": "docs",
+              "analyzer": "single3_address"
+            },
+            "unigram": {
+              "type": "text",
+              "index_options": "docs",
+              "analyzer": "unigram_address"
+            }
+          }
+        },
+        "applicant_city": {
+          "type": "keyword",
+          "store": true
+        },
+        "applicant_cnt": {
+          "type": "keyword",
+          "store": true,
+          "fields": {
+            "count": {
+              "type": "short",
+              "meta": {
+                "comment": "排序使用"
+              }
+            }
+          }
+        },
+        "applicant_name": {
+          "type": "text",
+          "index": false,
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 2048
+            }
+          }
+        },
+        "applicant_name_array": {
+          "type": "text",
+          "store": true,
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 2048
+            },
+            "normal": {
+              "type": "keyword",
+              "doc_values": false,
+              "normalizer": "default_normalizer"
+            },
+            "single2": {
+              "type": "text",
+              "index_options": "docs",
+              "analyzer": "single2_company_and_hum"
+            },
+            "single3": {
+              "type": "text",
+              "index_options": "docs",
+              "analyzer": "single3_company_and_hum"
+            },
+            "unigram": {
+              "type": "text",
+              "index_options": "docs",
+              "analyzer": "unigram_company_and_hum"
+            }
+          }
+        },
+        "applicant_province": {
+          "type": "keyword",
+          "store": true
+        },
+        "censor_array": {
+          "type": "text",
+          "store": true,
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 2048,
+              "normalizer": "my_normalizer"
+            },
+            "normal": {
+              "type": "keyword",
+              "doc_values": false,
+              "normalizer": "default_normalizer"
+            },
+            "single2": {
+              "type": "text",
+              "index_options": "docs",
+              "analyzer": "single2_company_and_hum"
+            },
+            "single3": {
+              "type": "text",
+              "index_options": "docs",
+              "analyzer": "single3_company_and_hum"
+            },
+            "unigram": {
+              "type": "text",
+              "index_options": "docs",
+              "analyzer": "unigram_company_and_hum"
+            }
+          }
+        },
+        "citation_array": {
+          "properties": {
+            "ReferenceDocCategory": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "date": {
+              "type": "date",
+              "index": false,
+              "store": true
+            },
+            "locationText": {
+              "type": "keyword",
+              "index": false,
+              "store": true,
+              "ignore_above": 256
+            },
+            "name": {
+              "type": "keyword",
+              "index": false,
+              "store": true,
+              "ignore_above": 256
+            },
+            "name_zh": {
+              "type": "keyword",
+              "index": false,
+              "store": true,
+              "ignore_above": 256
+            },
+            "num": {
+              "type": "keyword",
+              "index": false,
+              "store": true,
+              "ignore_above": 256
+            },
+            "pub_number": {
+              "type": "keyword",
+              "doc_values": false,
+              "store": true,
+              "ignore_above": 256,
+              "fields": {
+                "infix": {
+                  "type": "text",
+                  "index_options": "docs",
+                  "analyzer": "infix_6"
+                },
+                "normal": {
+                  "type": "keyword",
+                  "doc_values": false,
+                  "normalizer": "default_normalizer"
+                }
+              }
+            },
+            "text": {
+              "type": "text",
+              "store": true,
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            }
+          }
+        },
+        "citation_cnt": {
+          "type": "keyword",
+          "store": true,
+          "ignore_above": 256,
+          "fields": {
+            "count": {
+              "type": "short",
+              "meta": {
+                "comment": "专利结果列表排序用，也索引方便range查询否则keyword拆解间接支持"
+              }
+            }
+          }
+        },
+        "claim_file": {
+          "type": "keyword",
+          "index": false,
+          "doc_values": false,
+          "store": true,
+          "meta": {
+            "comment": "权利要求 100 中英原 string（1代表存在，0代表不存在）"
+          }
+        },
+        "claim_mix": {
+          "type": "keyword",
+          "index": false,
+          "doc_values": false,
+          "store": true,
+          "meta": {
+            "comment": "权利要求融合字段，用于desc多字段显示策略"
+          }
+        },
+        "claims": {
+          "type": "text",
+          "index": false,
+          "fields": {
+            "single2": {
+              "type": "text",
+              "index_options": "freqs",
+              "analyzer": "single2_text"
+            },
+            "single3": {
+              "type": "text",
+              "index_options": "freqs",
+              "analyzer": "single3_text"
+            },
+            "unigram": {
+              "type": "text",
+              "index_options": "freqs",
+              "analyzer": "unigram_text"
+            }
+          },
+          "analyzer": "xml_text_analyzer"
+        },
+        "cpc_array": {
+          "type": "text",
+          "index": false,
+          "store": true,
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 2048
+            },
+            "normal": {
+              "type": "keyword",
+              "doc_values": false,
+              "normalizer": "default_normalizer"
+            },
+            "prefix": {
+              "type": "text",
+              "index_options": "docs",
+              "analyzer": "prefix"
+            }
+          }
+        },
+        "cpc_mainclass": {
+          "type": "text",
+          "index": false,
+          "store": true,
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 2048
+            },
+            "normal": {
+              "type": "keyword",
+              "doc_values": false,
+              "normalizer": "default_normalizer"
+            },
+            "prefix": {
+              "type": "text",
+              "index_options": "docs",
+              "analyzer": "prefix"
+            }
+          }
+        },
+        "desc": {
+          "type": "text",
+          "index": false,
+          "fields": {
+            "single2": {
+              "type": "text",
+              "index_options": "freqs",
+              "analyzer": "single2_text"
+            },
+            "single3": {
+              "type": "text",
+              "index_options": "freqs",
+              "analyzer": "single3_text"
+            },
+            "unigram": {
+              "type": "text",
+              "index_options": "freqs",
+              "analyzer": "unigram_text"
+            }
+          },
+          "analyzer": "xml_text_analyzer"
+        },
+        "desc_drawings": {
+          "type": "keyword",
+          "index": false,
+          "doc_values": false,
+          "store": true
+        },
+        "desc_file": {
+          "type": "keyword",
+          "index": false,
+          "doc_values": false,
+          "store": true,
+          "meta": {
+            "comment": "说明书 111 中英原 string（1代表存在，0代表不存在）"
+          }
+        },
+        "desc_mix": {
+          "type": "keyword",
+          "index": false,
+          "doc_values": false,
+          "store": true,
+          "meta": {
+            "comment": "说明书融合字段，用于desc多字段显示策略"
+          }
+        },
+        "design_explanation": {
+          "type": "text",
+          "index": false,
+          "store": true,
+          "fields": {
+            "single2": {
+              "type": "text",
+              "index_options": "freqs",
+              "analyzer": "single2_text"
+            },
+            "single3": {
+              "type": "text",
+              "index_options": "freqs",
+              "analyzer": "single3_text"
+            },
+            "unigram": {
+              "type": "text",
+              "index_options": "freqs",
+              "analyzer": "unigram_text"
+            }
+          }
+        },
+        "design_picture": {
+          "type": "keyword",
+          "index": false,
+          "doc_values": false,
+          "store": true
+        },
+        "en_abs": {
+          "type": "text",
+          "index": false,
+          "store": true,
+          "fields": {
+            "single2": {
+              "type": "text",
+              "index_options": "freqs",
+              "analyzer": "single2_text"
+            },
+            "single3": {
+              "type": "text",
+              "index_options": "freqs",
+              "analyzer": "single3_text"
+            },
+            "unigram": {
+              "type": "text",
+              "index_options": "freqs",
+              "analyzer": "unigram_text"
+            }
+          },
+          "analyzer": "xml_text_analyzer"
+        },
+        "en_claims": {
+          "type": "text",
+          "index": false,
+          "fields": {
+            "single2": {
+              "type": "text",
+              "index_options": "freqs",
+              "analyzer": "single2_text"
+            },
+            "single3": {
+              "type": "text",
+              "index_options": "freqs",
+              "analyzer": "single3_text"
+            },
+            "unigram": {
+              "type": "text",
+              "index_options": "freqs",
+              "analyzer": "unigram_text"
+            }
+          },
+          "analyzer": "xml_text_analyzer"
+        },
+        "en_desc": {
+          "type": "text",
+          "index": false,
+          "fields": {
+            "single2": {
+              "type": "text",
+              "index_options": "freqs",
+              "analyzer": "single2_text"
+            },
+            "single3": {
+              "type": "text",
+              "index_options": "freqs",
+              "analyzer": "single3_text"
+            },
+            "unigram": {
+              "type": "text",
+              "index_options": "freqs",
+              "analyzer": "unigram_text"
+            }
+          },
+          "analyzer": "xml_text_analyzer"
+        },
+        "en_title": {
+          "type": "text",
+          "index": false,
+          "store": true,
+          "fields": {
+            "single2": {
+              "type": "text",
+              "index_options": "docs",
+              "analyzer": "single2_text"
+            },
+            "single3": {
+              "type": "text",
+              "index_options": "docs",
+              "analyzer": "single3_text"
+            },
+            "unigram": {
+              "type": "text",
+              "index_options": "docs",
+              "analyzer": "unigram_text"
+            }
+          },
+          "analyzer": "xml_text_analyzer"
+        },
+        "expiry_date": {
+          "type": "date",
+          "store": true,
+          "format": "yyyy-MM-dd"
+        },
+        "famn": {
+          "type": "keyword",
+          "store": true,
+          "fields": {
+            "hash": {
+              "type": "murmur3"
+            },
+            "murmur3": {
+              "type": "murmur3",
+              "store": true
+            }
+          }
+        },
+        "famn_bucket": {
+          "type": "keyword",
+          "index": false,
+          "script": {
+            "source": "\n        String ap = doc['famn'].value;\n        int hash = ap.hashCode();\n        int AppNumberBuckets = 256 / 2;\n        int rest = hash % AppNumberBuckets + AppNumberBuckets;\n        emit(rest + '');\n        ",
+            "lang": "painless"
+          }
+        },
+        "famn_hash": {
+          "type": "long",
+          "index": false,
+          "script": {
+            "source": "emit(doc['famn'].value.hashCode())",
+            "lang": "painless"
+          }
+        },
+        "file": {
+          "type": "keyword",
+          "index": false,
+          "doc_values": false,
+          "store": true
+        },
+        "first_applicant_name": {
+          "type": "keyword",
+          "store": true,
+          "fields": {
+            "normal": {
+              "type": "keyword",
+              "doc_values": false,
+              "normalizer": "default_normalizer"
+            },
+            "single2": {
+              "type": "text",
+              "index_options": "docs",
+              "analyzer": "single2_company_and_hum"
+            },
+            "single3": {
+              "type": "text",
+              "index_options": "docs",
+              "analyzer": "single3_company_and_hum"
+            },
+            "unigram": {
+              "type": "text",
+              "index_options": "docs",
+              "analyzer": "unigram_company_and_hum"
+            }
+          }
+        },
+        "first_inventor_name": {
+          "type": "keyword",
+          "store": true,
+          "fields": {
+            "normal": {
+              "type": "keyword",
+              "doc_values": false,
+              "normalizer": "default_normalizer"
+            },
+            "single2": {
+              "type": "text",
+              "index_options": "docs",
+              "analyzer": "single2_company_and_hum"
+            },
+            "single3": {
+              "type": "text",
+              "index_options": "docs",
+              "analyzer": "single3_company_and_hum"
+            },
+            "unigram": {
+              "type": "text",
+              "index_options": "docs",
+              "analyzer": "unigram_company_and_hum"
+            }
+          }
+        },
+        "insert_time": {
+          "type": "date",
+          "store": true,
+          "format": "yyyy-MM-dd"
+        },
+        "inventor_name_array": {
+          "type": "text",
+          "store": true,
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 2048
+            },
+            "normal": {
+              "type": "keyword",
+              "doc_values": false,
+              "normalizer": "default_normalizer"
+            },
+            "single2": {
+              "type": "text",
+              "index_options": "docs",
+              "analyzer": "single2_company_and_hum"
+            },
+            "single3": {
+              "type": "text",
+              "index_options": "docs",
+              "analyzer": "single3_company_and_hum"
+            },
+            "unigram": {
+              "type": "text",
+              "index_options": "docs",
+              "analyzer": "unigram_company_and_hum"
+            }
+          }
+        },
+        "inventor_name_cnt": {
+          "type": "keyword",
+          "store": true,
+          "fields": {
+            "count": {
+              "type": "short",
+              "meta": {
+                "comment": "排序使用"
+              }
+            }
+          }
+        },
+        "ipc_array": {
+          "type": "text",
+          "index": false,
+          "store": true,
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 2048
+            },
+            "normal": {
+              "type": "keyword",
+              "doc_values": false,
+              "normalizer": "default_normalizer"
+            },
+            "prefix": {
+              "type": "text",
+              "index_options": "docs",
+              "analyzer": "prefix"
+            }
+          }
+        },
+        "ipc_category": {
+          "type": "text",
+          "index": false,
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 2048
+            }
+          }
+        },
+        "ipc_hastime_array": {
+          "type": "text",
+          "index": false,
+          "store": true,
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "doc_values": false,
+              "ignore_above": 2048
+            }
+          }
+        },
+        "ipc_mainclass": {
+          "type": "keyword",
+          "store": true,
+          "fields": {
+            "normal": {
+              "type": "keyword",
+              "doc_values": false,
+              "normalizer": "default_normalizer"
+            },
+            "prefix": {
+              "type": "text",
+              "index_options": "docs",
+              "analyzer": "prefix"
+            }
+          }
+        },
+        "ipc_mainclass_classification": {
+          "properties": {
+            "category": {
+              "type": "keyword",
+              "meta": {
+                "comment": "大类"
+              }
+            },
+            "maingroup": {
+              "type": "keyword",
+              "meta": {
+                "comment": "大组"
+              }
+            },
+            "section": {
+              "type": "keyword",
+              "meta": {
+                "comment": "部"
+              }
+            },
+            "subclass": {
+              "type": "keyword",
+              "meta": {
+                "comment": "小类"
+              }
+            }
+          }
+        },
+        "ipc_maingroup": {
+          "type": "text",
+          "index": false,
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 2048
+            }
+          }
+        },
+        "ipc_section": {
+          "type": "text",
+          "index": false,
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 2048
+            }
+          }
+        },
+        "ipc_subclass": {
+          "type": "text",
+          "index": false,
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 2048
+            }
+          }
+        },
+        "keywords": {
+          "properties": {
+            "wd": {
+              "type": "keyword",
+              "store": true
+            },
+            "wt": {
+              "type": "half_float",
+              "index": false,
+              "store": true
+            }
+          }
+        },
+        "legal_status_info_array": {
+          "properties": {
+            "desc": {
+              "type": "text",
+              "store": true,
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 2048
+                }
+              }
+            },
+            "notice_date": {
+              "type": "keyword",
+              "store": true
+            },
+            "title": {
+              "type": "text",
+              "store": true,
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 2048
+                }
+              }
+            }
+          }
+        },
+        "legal_status_transfer_array": {
+          "properties": {
+            "assignee_array": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "execution_day": {
+              "type": "keyword",
+              "store": true
+            },
+            "transferor_array": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            }
+          }
+        },
+        "loc_array": {
+          "type": "text",
+          "index": false,
+          "store": true,
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 2048
+            },
+            "normal": {
+              "type": "keyword",
+              "doc_values": false,
+              "normalizer": "default_normalizer"
+            },
+            "prefix": {
+              "type": "text",
+              "index_options": "docs",
+              "analyzer": "prefix"
+            }
+          }
+        },
+        "loc_no_var_array": {
+          "type": "text",
+          "index": false,
+          "store": true,
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 2048
+            }
+          }
+        },
+        "neic_no_code_array": {
+          "type": "text",
+          "index": false,
+          "store": true,
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 2048
+            }
+          }
+        },
+        "neic_no_name_array": {
+          "type": "text",
+          "store": true,
+          "fields": {
+            "infix": {
+              "type": "text",
+              "index_options": "docs",
+              "analyzer": "infix"
+            },
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 2048
+            },
+            "normal": {
+              "type": "keyword",
+              "doc_values": false,
+              "normalizer": "default_normalizer"
+            }
+          }
+        },
+        "original_abs": {
+          "type": "text",
+          "index": false,
+          "store": true,
+          "fields": {
+            "single2": {
+              "type": "text",
+              "index_options": "freqs",
+              "analyzer": "single2_text"
+            },
+            "single3": {
+              "type": "text",
+              "index_options": "freqs",
+              "analyzer": "single3_text"
+            },
+            "unigram": {
+              "type": "text",
+              "index_options": "freqs",
+              "analyzer": "unigram_text"
+            }
+          },
+          "analyzer": "xml_text_analyzer"
+        },
+        "original_claims": {
+          "type": "text",
+          "index": false,
+          "fields": {
+            "single2": {
+              "type": "text",
+              "index_options": "freqs",
+              "analyzer": "single2_text"
+            },
+            "single3": {
+              "type": "text",
+              "index_options": "freqs",
+              "analyzer": "single3_text"
+            },
+            "unigram": {
+              "type": "text",
+              "index_options": "freqs",
+              "analyzer": "unigram_text"
+            }
+          },
+          "analyzer": "xml_text_analyzer"
+        },
+        "original_desc": {
+          "type": "text",
+          "index": false,
+          "fields": {
+            "single2": {
+              "type": "text",
+              "index_options": "freqs",
+              "analyzer": "single2_text"
+            },
+            "single3": {
+              "type": "text",
+              "index_options": "freqs",
+              "analyzer": "single3_text"
+            },
+            "unigram": {
+              "type": "text",
+              "index_options": "freqs",
+              "analyzer": "unigram_text"
+            }
+          },
+          "analyzer": "xml_text_analyzer"
+        },
+        "original_title": {
+          "type": "text",
+          "index": false,
+          "store": true,
+          "fields": {
+            "single2": {
+              "type": "text",
+              "index_options": "docs",
+              "analyzer": "single2_text"
+            },
+            "single3": {
+              "type": "text",
+              "index_options": "docs",
+              "analyzer": "single3_text"
+            },
+            "unigram": {
+              "type": "text",
+              "index_options": "docs",
+              "analyzer": "unigram_text"
+            }
+          },
+          "analyzer": "xml_text_analyzer"
+        },
+        "owner_applicant_address": {
+          "type": "text",
+          "store": true,
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "doc_values": false,
+              "ignore_above": 256
+            },
+            "normal": {
+              "type": "keyword",
+              "doc_values": false,
+              "normalizer": "default_normalizer"
+            },
+            "single2": {
+              "type": "text",
+              "index_options": "docs",
+              "analyzer": "single2_text"
+            },
+            "single3": {
+              "type": "text",
+              "index_options": "docs",
+              "analyzer": "single3_text"
+            },
+            "unigram": {
+              "type": "text",
+              "index_options": "docs",
+              "analyzer": "unigram_address"
+            }
+          },
+          "meta": {
+            "comment": "当前申请人地址",
+            "example": ""
+          }
+        },
+        "owner_applicant_city": {
+          "type": "keyword",
+          "meta": {
+            "comment": "当前申请人市"
+          }
+        },
+        "owner_applicant_province": {
+          "type": "keyword",
+          "meta": {
+            "comment": "当前申请人省"
+          }
+        },
+        "owner_name_array": {
+          "type": "text",
+          "store": true,
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 2048
+            },
+            "normal": {
+              "type": "keyword",
+              "doc_values": false,
+              "normalizer": "default_normalizer"
+            },
+            "single2": {
+              "type": "text",
+              "index_options": "docs",
+              "analyzer": "single2_company_and_hum"
+            },
+            "single3": {
+              "type": "text",
+              "index_options": "docs",
+              "analyzer": "single3_company_and_hum"
+            },
+            "unigram": {
+              "type": "text",
+              "index_options": "docs",
+              "analyzer": "unigram_company_and_hum"
+            }
+          },
+          "meta": {
+            "comment": "2022-12-28新增 专利权人数组",
+            "example": ""
+          }
+        },
+        "owner_name_cnt": {
+          "type": "keyword",
+          "store": true,
+          "meta": {
+            "comment": "2022-12-28新增 专利权人数量",
+            "example": ""
+          },
+          "fields": {
+            "count": {
+              "type": "short",
+              "meta": {
+                "comment": "排序使用"
+              }
+            }
+          }
+        },
+        "pat_type": {
+          "type": "keyword",
+          "store": true
+        },
+        "pat_type2": {
+          "type": "keyword",
+          "store": true
+        },
+        "patent_is_new": {
+          "type": "boolean",
+          "meta": {
+            "comment": "同一个申请号下最新专利标志"
+          },
+          "doc_values": false
+        },
+        "pct_app_number": {
+          "type": "text",
+          "store": true,
+          "fields": {
+            "infix": {
+              "type": "text",
+              "index_options": "docs",
+              "analyzer": "infix_6"
+            },
+            "keyword": {
+              "type": "keyword",
+              "doc_values": false,
+              "ignore_above": 256
+            },
+            "normal": {
+              "type": "keyword",
+              "doc_values": false,
+              "normalizer": "default_normalizer"
+            }
+          }
+        },
+        "pct_entrydate": {
+          "type": "date",
+          "store": true,
+          "format": "yyyy-MM-dd"
+        },
+        "pct_pub_number": {
+          "type": "text",
+          "index": false,
+          "store": true,
+          "fields": {
+            "infix": {
+              "type": "text",
+              "index_options": "docs",
+              "analyzer": "infix_6"
+            },
+            "keyword": {
+              "type": "keyword",
+              "doc_values": false,
+              "ignore_above": 256
+            },
+            "normal": {
+              "type": "keyword",
+              "doc_values": false,
+              "normalizer": "default_normalizer"
+            }
+          }
+        },
+        "pdf_pub_number": {
+          "type": "keyword",
+          "index": false,
+          "doc_values": false,
+          "meta": {
+            "comment": "用来取pdf文件的公开号",
+            "example": "CN206016966U"
+          }
+        },
+        "pid": {
+          "type": "text",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        },
+        "pri_priority_date": {
+          "type": "date",
+          "store": true,
+          "format": "yyyy-MM-dd"
+        },
+        "priority_array": {
+          "type": "text",
+          "index": false,
+          "store": true,
+          "fields": {
+            "infix": {
+              "type": "text",
+              "index_options": "docs",
+              "analyzer": "infix_6"
+            },
+            "keyword": {
+              "type": "keyword",
+              "doc_values": false,
+              "ignore_above": 2048
+            },
+            "normal": {
+              "type": "keyword",
+              "doc_values": false,
+              "normalizer": "default_normalizer"
+            }
+          }
+        },
+        "prority_country": {
+          "type": "keyword",
+          "store": true
+        },
+        "prority_country_array": {
+          "type": "keyword",
+          "store": true,
+          "meta": {
+            "comment": "2022-12-28新增 优先权国家数组，可能用于识别简单同族",
+            "example": ""
+          }
+        },
+        "pub_date": {
+          "type": "date",
+          "store": true,
+          "format": "yyyy-MM-dd"
+        },
+        "pub_date_array": {
+          "type": "date",
+          "doc_values": false,
+          "format": "yyyy-MM-dd",
+          "meta": {
+            "comment": "对应同一个申请号下的公开日期数组"
+          }
+        },
+        "pub_number": {
+          "type": "text",
+          "index": false,
+          "store": true,
+          "fields": {
+            "infix": {
+              "type": "text",
+              "index_options": "docs",
+              "analyzer": "infix_6"
+            },
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
+            "normal": {
+              "type": "keyword",
+              "doc_values": false,
+              "normalizer": "default_normalizer"
+            }
+          },
+          "meta": {
+            "comment": "公开号",
+            "example": "CN206016966U"
+          }
+        },
+        "pub_number_array": {
+          "type": "keyword",
+          "doc_values": false,
+          "store": true,
+          "ignore_above": 256,
+          "fields": {
+            "infix": {
+              "type": "text",
+              "index_options": "docs",
+              "analyzer": "infix_6"
+            },
+            "normal": {
+              "type": "keyword",
+              "doc_values": false,
+              "normalizer": "default_normalizer"
+            }
+          }
+        },
+        "pub_number_array_no_prefix": {
+          "type": "keyword",
+          "doc_values": false,
+          "ignore_above": 256
+        },
+        "pub_number_array_reversed": {
+          "type": "keyword",
+          "doc_values": false,
+          "ignore_above": 256
+        },
+        "pub_number_no_prefix": {
+          "type": "keyword",
+          "doc_values": false,
+          "ignore_above": 256
+        },
+        "pub_number_reversed": {
+          "type": "keyword",
+          "doc_values": false,
+          "ignore_above": 256
+        },
+        "pub_year": {
+          "type": "keyword",
+          "store": true
+        },
+        "rec_office": {
+          "type": "keyword",
+          "store": true
+        },
+        "retrial_array": {
+          "properties": {
+            "appellee_array": {
+              "type": "text",
+              "store": true,
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 2048
+                }
+              }
+            },
+            "decision_date": {
+              "type": "keyword",
+              "store": true
+            },
+            "decision_number": {
+              "type": "keyword",
+              "store": true
+            },
+            "decision_points": {
+              "type": "text",
+              "store": true,
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 2048
+                }
+              }
+            },
+            "examiner_chief": {
+              "type": "text",
+              "store": true,
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 2048
+                }
+              }
+            },
+            "examiner_leader": {
+              "type": "text",
+              "store": true,
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 2048
+                }
+              }
+            },
+            "examiner_member": {
+              "type": "text",
+              "store": true,
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 2048
+                }
+              }
+            },
+            "legal_basis_array": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "petitioner_array": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "retrial_type": {
+              "type": "keyword",
+              "store": true
+            },
+            "review_results_cn": {
+              "type": "text",
+              "store": true,
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 2048
+                }
+              }
+            },
+            "review_results_ori": {
+              "type": "text",
+              "store": true,
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 2048
+                }
+              }
+            },
+            "weinei_code": {
+              "type": "keyword",
+              "store": true
+            }
+          }
+        },
+        "sale_type_array": {
+          "type": "keyword",
+          "store": true
+        },
+        "sei_dis_code_array": {
+          "type": "text",
+          "index": false,
+          "store": true,
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 2048
+            }
+          }
+        },
+        "sei_dis_name_array": {
+          "type": "text",
+          "store": true,
+          "fields": {
+            "infix": {
+              "type": "text",
+              "index_options": "docs",
+              "analyzer": "infix"
+            },
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 2048
+            },
+            "normal": {
+              "type": "keyword",
+              "doc_values": false,
+              "normalizer": "default_normalizer"
+            }
+          }
+        },
+        "simple_legal_status": {
+          "type": "keyword",
+          "store": true
+        },
+        "simple_legal_status_2": {
+          "type": "keyword",
+          "store": true,
+          "null_value": "其他",
+          "meta": {
+            "comment": "简单法律状态",
+            "example": "放弃、届满、终止、授权、实审、部分无效、全部无效、公开、驳回、撤回"
+          }
+        },
+        "title": {
+          "type": "text",
+          "index": false,
+          "store": true,
+          "fields": {
+            "single2": {
+              "type": "text",
+              "index_options": "docs",
+              "analyzer": "single2_text"
+            },
+            "single3": {
+              "type": "text",
+              "index_options": "docs",
+              "analyzer": "single3_text"
+            },
+            "unigram": {
+              "type": "text",
+              "index_options": "docs",
+              "analyzer": "unigram_text"
+            }
+          },
+          "analyzer": "xml_text_analyzer"
+        }
+      }
+    }
+  }
+}
