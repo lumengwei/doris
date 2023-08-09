@@ -50,8 +50,7 @@ public class EsUtil {
     /**
      * Analyze partition and distributionDesc.
      **/
-    public static void analyzePartitionAndDistributionDesc(PartitionDesc partitionDesc,
-            DistributionDesc distributionDesc) throws AnalysisException {
+    public static void analyzePartitionAndDistributionDesc(PartitionDesc partitionDesc, DistributionDesc distributionDesc) throws AnalysisException {
         if (partitionDesc == null && distributionDesc == null) {
             return;
         }
@@ -88,8 +87,7 @@ public class EsUtil {
         try {
             return Boolean.parseBoolean(property);
         } catch (Exception e) {
-            throw new DdlException(String.format("fail to parse %s, %s = %s, `%s` should be like 'true' or 'false', "
-                    + "value should be double quotation marks", name, name, property, name));
+            throw new DdlException(String.format("fail to parse %s, %s = %s, `%s` should be like 'true' or 'false', " + "value should be double quotation marks", name, name, property, name));
         }
     }
 
@@ -109,8 +107,18 @@ public class EsUtil {
         if (mappingType == null) {
             // remove dynamic templates, for ES 7.x and 8.x
             checkNonPropertiesFields(mappings, arrayFields);
-            String firstType = mappings.fieldNames().next();
-            if (!"properties".equals(firstType)) {
+            Iterator<String> itr = mappings.fieldNames();
+            String firstType = itr.next();
+            boolean hasProperties = "properties".equals(firstType);
+            if (hasProperties == false) {
+                while (itr.hasNext()) {
+                    if ("properties".equals(itr.next())) {
+                        hasProperties = true;
+                    }
+                }
+            }
+
+            if (hasProperties == false) {
                 // If type is not passed in takes the first type.
                 ObjectNode firstData = (ObjectNode) mappings.get(firstType);
                 // check for ES 6.x and before
@@ -169,8 +177,7 @@ public class EsUtil {
         ObjectNode rootSchema = getRootSchema(mappings, mappingType, new ArrayList<>());
         ObjectNode properties = (ObjectNode) rootSchema.get("properties");
         if (properties == null) {
-            throw new DorisEsException(
-                    "index[" + sourceIndex + "] type[" + mappingType + "] mapping not found for the ES Cluster");
+            throw new DorisEsException("index[" + sourceIndex + "] type[" + mappingType + "] mapping not found for the ES Cluster");
         }
         return properties;
     }
@@ -179,8 +186,7 @@ public class EsUtil {
      * Generate columns from ES Cluster.
      * Add mappingEsId config in es external catalog.
      **/
-    public static List<Column> genColumnsFromEs(EsRestClient client, String indexName, String mappingType,
-            boolean mappingEsId) {
+    public static List<Column> genColumnsFromEs(EsRestClient client, String indexName, String mappingType, boolean mappingEsId) {
         String mapping = client.getMapping(indexName);
         ObjectNode mappings = getMapping(mapping);
         // Get array_fields while removing _meta property.
@@ -190,8 +196,7 @@ public class EsUtil {
     }
 
     @VisibleForTesting
-    public static List<Column> genColumnsFromEs(String indexName, String mappingType, ObjectNode rootSchema,
-            boolean mappingEsId, List<String> arrayFields) {
+    public static List<Column> genColumnsFromEs(String indexName, String mappingType, ObjectNode rootSchema, boolean mappingEsId, List<String> arrayFields) {
         List<Column> columns = new ArrayList<>();
         if (mappingEsId) {
             Column column = new Column();
@@ -204,15 +209,24 @@ public class EsUtil {
         }
         ObjectNode mappingProps = (ObjectNode) rootSchema.get("properties");
         if (mappingProps == null) {
-            throw new DorisEsException(
-                    "index[" + indexName + "] type[" + mappingType + "] mapping not found for the ES Cluster");
+            throw new DorisEsException("index[" + indexName + "] type[" + mappingType + "] mapping not found for the ES Cluster");
         }
         Iterator<String> iterator = mappingProps.fieldNames();
         while (iterator.hasNext()) {
             String fieldName = iterator.next();
-            ObjectNode fieldValue = (ObjectNode) mappingProps.get(fieldName);
-            Column column = parseEsField(fieldName, fieldValue, arrayFields);
-            columns.add(column);
+            if ("_score".equals(fieldName)) {
+                Column column = new Column();
+                column.setName("_score");
+                column.setIsKey(false);
+                column.setType(Type.DOUBLE);
+                column.setIsAllowNull(true);
+                column.setUniqueId(-1);
+                columns.add(column);
+            } else {
+                ObjectNode fieldValue = (ObjectNode) mappingProps.get(fieldName);
+                Column column = parseEsField(fieldName, fieldValue, arrayFields);
+                columns.add(column);
+            }
         }
         return columns;
     }
@@ -284,8 +298,7 @@ public class EsUtil {
         return column;
     }
 
-    private static final List<String> ALLOW_DATE_FORMATS = Lists.newArrayList("yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd",
-            "epoch_millis");
+    private static final List<String> ALLOW_DATE_FORMATS = Lists.newArrayList("yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd", "epoch_millis");
 
     /**
      * Parse es date to doris type by format
@@ -304,8 +317,7 @@ public class EsUtil {
             for (String format : formats) {
                 // pre-check format
                 if (!ALLOW_DATE_FORMATS.contains(format)) {
-                    column.setComment(
-                            "Elasticsearch type is date, format is " + format + " not support, use String type");
+                    column.setComment("Elasticsearch type is date, format is " + format + " not support, use String type");
                     return ScalarType.createStringType();
                 }
                 switch (format) {
