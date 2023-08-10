@@ -55,18 +55,18 @@ public class MappingPhase implements SearchPhase {
      * Parse the required field information from the json.
      *
      * @param searchContext the current associated column searchContext
-     * @param indexMapping the return value of _mapping
+     * @param indexMapping  the return value of _mapping
      */
     public static void resolveFields(SearchContext searchContext, String indexMapping) throws DorisEsException {
         ObjectNode properties = EsUtil.getMappingProps(searchContext.sourceIndex(), indexMapping, searchContext.type());
         for (Column col : searchContext.columns()) {
             String colName = col.getName();
             // _id not exist mapping, but be can query it.
-            if (!"_id".equals(colName)) {
+            if (!"_id".equals(colName) && !"_score".equals(colName)) {
                 if (!properties.has(colName)) {
                     throw new DorisEsException(
-                            "index[" + searchContext.sourceIndex() + "] mapping[" + indexMapping + "] not found "
-                                    + "column " + colName + " for the ES Cluster");
+                        "index[" + searchContext.sourceIndex() + "] mapping[" + indexMapping + "] not found "
+                            + "column " + colName + " for the ES Cluster");
                 }
                 ObjectNode fieldObject = (ObjectNode) properties.get(colName);
                 if (!fieldObject.has("type")) {
@@ -81,7 +81,7 @@ public class MappingPhase implements SearchPhase {
     }
 
     private static void resolveDateFields(SearchContext searchContext, ObjectNode fieldObject, String colName,
-            String fieldType) {
+                                          String fieldType) {
         // Compat use default/strict_date_optional_time format date type, need transform datetime to
         if ("date".equals(fieldType)) {
             if (!fieldObject.has("format") || "strict_date_optional_time".equals(fieldObject.get("format").asText())) {
@@ -93,7 +93,7 @@ public class MappingPhase implements SearchPhase {
 
     // get a field of keyword type in the fields
     private static void resolveKeywordFields(SearchContext searchContext, ObjectNode fieldObject, String colName,
-            String fieldType) {
+                                             String fieldType) {
         // string-type field used keyword type to generate predicate
         // if text field type seen, we should use the `field` keyword type?
         if ("text".equals(fieldType)) {
@@ -113,7 +113,7 @@ public class MappingPhase implements SearchPhase {
     }
 
     private static void resolveDocValuesFields(SearchContext searchContext, ObjectNode fieldObject, String colName,
-            String fieldType) {
+                                               String fieldType) {
         String docValueField = null;
         if (EsTable.DEFAULT_DOCVALUE_DISABLED_FIELDS.contains(fieldType)) {
             JsonNode fieldsObject = fieldObject.get("fields");
