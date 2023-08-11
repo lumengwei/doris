@@ -140,7 +140,7 @@ public class EsScanNode extends ScanNode {
      * return whether can use the doc_values scan
      * 0 and 1 are returned to facilitate Doris BE processing
      *
-     * @param desc the fields needs to read from ES
+     * @param desc            the fields needs to read from ES
      * @param docValueContext the mapping for docvalues fields from origin field to doc_value fields
      */
     private int useDocValueScan(TupleDescriptor desc, Map<String, String> docValueContext) {
@@ -155,7 +155,7 @@ public class EsScanNode extends ScanNode {
         Set<String> docValueFields = docValueContext.keySet();
         boolean useDocValue = true;
         for (String selectedField : selectedFields) {
-            if (!docValueFields.contains(selectedField)) {
+            if (!docValueFields.contains(selectedField) && !"_score".equals(selectedField) && !"_id".equals(selectedField)) {
                 useDocValue = false;
                 break;
             }
@@ -210,8 +210,7 @@ public class EsScanNode extends ScanNode {
         // info is generated from es cluster state dynamically
         if (esTablePartitions == null) {
             if (table.getLastMetaDataSyncException() != null) {
-                throw new UserException("fetch es table [" + table.getName() + "] metadata failure: "
-                        + table.getLastMetaDataSyncException().getLocalizedMessage());
+                throw new UserException("fetch es table [" + table.getName() + "] metadata failure: " + table.getLastMetaDataSyncException().getLocalizedMessage());
             }
             throw new UserException("EsTable metadata has not been synced, Try it later");
         }
@@ -231,8 +230,7 @@ public class EsScanNode extends ScanNode {
             }
         }
         if (LOG.isDebugEnabled()) {
-            LOG.debug("partition prune finished, unpartitioned index [{}], " + "partitioned index [{}]",
-                    String.join(",", unPartitionedIndices), String.join(",", partitionedIndices));
+            LOG.debug("partition prune finished, unpartitioned index [{}], " + "partitioned index [{}]", String.join(",", unPartitionedIndices), String.join(",", partitionedIndices));
         }
         int size = backendList.size();
         int beIndex = random.nextInt(size);
@@ -316,8 +314,7 @@ public class EsScanNode extends ScanNode {
             case RANGE: {
                 RangePartitionInfo rangePartitionInfo = (RangePartitionInfo) partitionInfo;
                 Map<Long, PartitionItem> keyRangeById = rangePartitionInfo.getIdToItem(false);
-                partitionPruner = new RangePartitionPruner(keyRangeById, rangePartitionInfo.getPartitionColumns(),
-                        columnFilters);
+                partitionPruner = new RangePartitionPruner(keyRangeById, rangePartitionInfo.getPartitionColumns(), columnFilters);
                 return partitionPruner.prune();
             }
             case UNPARTITIONED: {
@@ -365,9 +362,7 @@ public class EsScanNode extends ScanNode {
             BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
             List<Expr> notPushDownList = new ArrayList<>();
             for (Expr expr : conjuncts) {
-                QueryBuilder queryBuilder = QueryBuilders.toEsDsl(expr, notPushDownList, fieldsContext,
-                        BuilderOptions.builder().likePushDown(table.isLikePushDown())
-                                .needCompatDateFields(table.needCompatDateFields()).build());
+                QueryBuilder queryBuilder = QueryBuilders.toEsDsl(expr, notPushDownList, fieldsContext, BuilderOptions.builder().likePushDown(table.isLikePushDown()).needCompatDateFields(table.needCompatDateFields()).build());
                 if (queryBuilder != null) {
                     hasFilter = true;
                     boolQueryBuilder.must(queryBuilder);
