@@ -348,14 +348,10 @@ void ColumnVector<T>::insert_range_from(const IColumn& src, size_t start, size_t
     const ColumnVector& src_vec = dynamic_cast<const ColumnVector&>(src);
 
     if (start + length > src_vec.data.size()) {
-        String errMsg = fmt::format(
+        LOG(FATAL) << fmt::format(
                 "Parameters start = {}, length = {}, are out of bound in "
                 "ColumnVector<T>::insert_range_from method (data.size() = {}).",
                 start, length, src_vec.data.size());
-        LOG(FATAL) << errMsg;
-
-        throw Exception(errMsg, doris::ErrorCode::OUT_OF_BOUND);
-
     }
 
     size_t old_size = data.size();
