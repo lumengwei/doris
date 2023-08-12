@@ -228,6 +228,11 @@ public final class QueryBuilders {
         if (expr instanceof CompoundPredicate) {
             return toCompoundEsDsl(expr, notPushDownList, fieldsContext, builderOptions);
         }
+
+        if (expr instanceof FunctionCallExpr) {
+            return parseFunctionCallExpr(expr);
+        }
+
         TExprOpcode opCode = expr.getOpcode();
         String column;
         Expr leftExpr = expr.getChild(0);
@@ -270,9 +275,7 @@ public final class QueryBuilders {
         if (expr instanceof InPredicate) {
             return parseInPredicate(expr, column, needDateCompat);
         }
-        if (expr instanceof FunctionCallExpr) {
-            return parseFunctionCallExpr(expr);
-        }
+
         return null;
     }
 

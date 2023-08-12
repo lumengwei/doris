@@ -59,14 +59,7 @@ import lombok.SneakyThrows;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 /**
  * ScanNode for Elasticsearch.
@@ -204,7 +197,7 @@ public class EsScanNode extends ScanNode {
         }
     }
 
-    // only do partition(es index level) prune
+    // only do partition(es index level) pruneH
     private List<TScanRangeLocations> getShardLocations() throws UserException {
         // has to get partition info from es state not from table because the partition
         // info is generated from es cluster state dynamically
@@ -361,11 +354,15 @@ public class EsScanNode extends ScanNode {
             boolean hasFilter = false;
             BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
             List<Expr> notPushDownList = new ArrayList<>();
+
+            // 已经转为EsDSL的需要删除掉
+            List<Expr> toDels = new LinkedList<>();
             for (Expr expr : conjuncts) {
                 QueryBuilder queryBuilder = QueryBuilders.toEsDsl(expr, notPushDownList, fieldsContext, BuilderOptions.builder().likePushDown(table.isLikePushDown()).needCompatDateFields(table.needCompatDateFields()).build());
                 if (queryBuilder != null) {
                     hasFilter = true;
                     boolQueryBuilder.must(queryBuilder);
+                    toDels.add(expr);
                 }
             }
             if (!hasFilter) {
@@ -373,6 +370,10 @@ public class EsScanNode extends ScanNode {
             } else {
                 queryBuilder = boolQueryBuilder;
             }
+
+            // 删除掉已经转化为EsDSL的条件
+            conjuncts.removeAll(toDels);
+
             if (Config.enable_new_es_dsl) {
                 conjuncts.removeIf(expr -> !notPushDownList.contains(expr));
             }
